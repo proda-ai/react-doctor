@@ -10,12 +10,9 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
       packages: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: pnpm/action-setup@v4
 
@@ -28,21 +25,18 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Bump version
+      - name: Check version is not already published
         working-directory: packages/react-doctor
         run: |
-          CURRENT=$(node -p "require('./package.json').version")
-          # Extract proda suffix number, increment it
-          if [[ "$CURRENT" =~ -proda\.([0-9]+)$ ]]; then
-            BASE="${CURRENT%-proda.*}"
-            NUM="${BASH_REMATCH[1]}"
-            NEXT="$BASE-proda.$((NUM + 1))"
-          else
-            NEXT="$CURRENT-proda.1"
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          if npm view "@proda-ai/react-doctor@$VERSION" version --registry=https://npm.pkg.github.com 2>/dev/null; then
+            echo "❌ Version $VERSION is already published. Bump the version in package.json before merging."
+            exit 1
           fi
-          npm version "$NEXT" --no-git-tag-version
-          echo "VERSION=$NEXT" >> "$GITHUB_ENV"
-          echo "📦 Version: $NEXT"
+          echo "✅ Version $VERSION is not yet published"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
         working-directory: packages/react-doctor
@@ -53,11 +47,3 @@ jobs:
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Commit version bump
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add packages/react-doctor/package.json
-          git commit -m "📦 Release @proda-ai/react-doctor@${{ env.VERSION }} [skip ci]"
-          git push
