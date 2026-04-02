@@ -20,9 +20,6 @@
     "url": "https://github.com/proda-ai/react-doctor.git",
     "directory": "packages/react-doctor"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  },
   "bin": {
     "react-doctor": "./dist/cli.js"
   },
@@ -43,6 +40,9 @@
       "types": "./dist/react-doctor-plugin.d.ts",
       "default": "./dist/react-doctor-plugin.js"
     }
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
     "dev": "tsdown --watch",
