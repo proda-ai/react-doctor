@@ -35,6 +35,6 @@ jobs:
 
       - name: Publish
         working-directory: packages/react-doctor
-        run: npm publish
+        run: npm publish --tag latest
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
