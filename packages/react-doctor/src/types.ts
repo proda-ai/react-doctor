@@ -167,6 +167,20 @@ export interface ReactDoctorIgnoreConfig {
   files?: string[];
 }
 
+export interface RuleOverride {
+  files: string[];
+  maxLines: number;
+}
+
+export interface NoGiantComponentConfig {
+  maxLines?: number;
+  overrides?: RuleOverride[];
+}
+
+export interface RulesConfig {
+  "no-giant-component"?: NoGiantComponentConfig;
+}
+
 export interface ReactDoctorConfig {
   ignore?: ReactDoctorIgnoreConfig;
   lint?: boolean;
@@ -174,4 +188,5 @@ export interface ReactDoctorConfig {
   verbose?: boolean;
   diff?: boolean | string;
   failOn?: FailOnLevel;
+  rules?: RulesConfig;
 }
