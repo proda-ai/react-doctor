@@ -4,8 +4,82 @@
   <img alt="React Doctor" src="./assets/react-doctor-readme-logo-light.svg" width="180" height="40">
 </picture>
 
-[![version](https://img.shields.io/npm/v/react-doctor?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/react-doctor)
-[![downloads](https://img.shields.io/npm/dt/react-doctor.svg?style=flat&colorA=000000&colorB=000000)](https://npmjs.com/package/react-doctor)
+# `@proda-ai/react-doctor`
+
+> **This is a Proda fork of [millionco/react-doctor](https://github.com/millionco/react-doctor).**
+
+## Why this fork exists
+
+React Doctor has hardcoded thresholds (e.g. 300 lines for `no-giant-component`) with no way to configure them per-directory or per-rule. The upstream config only supports globally ignoring rules or files — there is no middle ground.
+
+We needed:
+
+- **Per-directory threshold overrides** — view components are naturally larger than leaf components, and a single global limit doesn't fit both
+- **Bug fixes** not yet released upstream (e.g. [#113](https://github.com/millionco/react-doctor/issues/113) — non-existent `jsx-a11y/no-noninteractive-element-interactions` rule breaking the score)
+
+This fork is published as `@proda-ai/react-doctor` on GitHub Packages. Upstream contributions are welcome and will be submitted back when possible.
+
+## What's different from upstream
+
+| Change                                                                                                                                    | Status                                      |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| Remove non-existent `jsx-a11y/no-noninteractive-element-interactions` rule ([#113](https://github.com/millionco/react-doctor/issues/113)) | ✅ Merged                                   |
+| Configurable per-directory thresholds via `react-doctor.config.json`                                                                      | 🔜 On branch `feat/configurable-thresholds` |
+
+### Configurable thresholds (planned)
+
+```json
+{
+  "thresholds": {
+    "component-lines": {
+      "default": 300,
+      "overrides": [{ "files": ["src/ui/views/**"], "max": 400 }]
+    }
+  }
+}
+```
+
+## Versioning
+
+Versions follow `{upstream}-proda.{N}`:
+
+| Version          | Meaning                                            |
+| ---------------- | -------------------------------------------------- |
+| `0.0.30-proda.1` | Based on upstream `0.0.30`, Proda patch 1          |
+| `0.0.30-proda.2` | Same upstream base, next Proda change              |
+| `0.0.31-proda.1` | After merging upstream `0.0.31`, first Proda patch |
+
+The version is **set manually** in `packages/react-doctor/package.json` as part of the PR. Bump the `proda.N` suffix when making changes.
+
+## CI / CD
+
+### On pull requests
+
+- **CI / test** — runs tests, lint, and format checks (upstream workflow)
+- **Version check** — if `package.json` was changed, verifies the version doesn't already exist in GitHub Packages. Fails with a clear message if you forgot to bump
+
+### On merge to main
+
+- **Publish** — builds with Node 24, verifies the version is new (safety net), and publishes `@proda-ai/react-doctor` to GitHub Packages. No manual steps needed
+
+### How to release a new version
+
+1. Make your changes in a PR
+2. Bump the version in `packages/react-doctor/package.json` (increment the `proda.N` suffix)
+3. CI validates the version is available
+4. Merge — package is published automatically
+
+### Syncing with upstream
+
+1. `git fetch upstream && git merge upstream/main`
+2. Update the base version to match upstream (e.g. `0.0.31-proda.1`)
+3. Resolve conflicts if any, open a PR
+
+---
+
+_Original README follows below._
+
+---
 
 Let coding agents diagnose and fix your React code.
 

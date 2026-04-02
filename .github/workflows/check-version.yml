@@ -1,0 +1,37 @@
+name: Version check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "packages/react-doctor/package.json"
+  workflow_call:
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@proda-ai"
+
+      - name: Verify version is not already published
+        working-directory: packages/react-doctor
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Checking @proda-ai/react-doctor@$VERSION..."
+          if npm view "@proda-ai/react-doctor@$VERSION" version --registry=https://npm.pkg.github.com 2>/dev/null; then
+            echo ""
+            echo "❌ Version $VERSION is already published to GitHub Packages."
+            echo "   Bump the version in packages/react-doctor/package.json before merging."
+            exit 1
+          fi
+          echo "✅ Version $VERSION is available for publishing"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
