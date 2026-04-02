@@ -13,6 +13,7 @@
 React Doctor has hardcoded thresholds (e.g. 300 lines for `no-giant-component`) with no way to configure them per-directory or per-rule. The upstream config only supports globally ignoring rules or files — there is no middle ground.
 
 We needed:
+
 - **Per-directory threshold overrides** — view components are naturally larger than leaf components, and a single global limit doesn't fit both
 - **Bug fixes** not yet released upstream (e.g. [#113](https://github.com/millionco/react-doctor/issues/113) — non-existent `jsx-a11y/no-noninteractive-element-interactions` rule breaking the score)
 
@@ -20,10 +21,10 @@ This fork is published as `@proda-ai/react-doctor` on GitHub Packages. Upstream 
 
 ## What's different from upstream
 
-| Change | Status |
-|---|---|
-| Remove non-existent `jsx-a11y/no-noninteractive-element-interactions` rule ([#113](https://github.com/millionco/react-doctor/issues/113)) | ✅ Merged |
-| Configurable per-directory thresholds via `react-doctor.config.json` | 🔜 On branch `feat/configurable-thresholds` |
+| Change                                                                                                                                    | Status                                      |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| Remove non-existent `jsx-a11y/no-noninteractive-element-interactions` rule ([#113](https://github.com/millionco/react-doctor/issues/113)) | ✅ Merged                                   |
+| Configurable per-directory thresholds via `react-doctor.config.json`                                                                      | 🔜 On branch `feat/configurable-thresholds` |
 
 ### Configurable thresholds (planned)
 
@@ -32,9 +33,7 @@ This fork is published as `@proda-ai/react-doctor` on GitHub Packages. Upstream 
   "thresholds": {
     "component-lines": {
       "default": 300,
-      "overrides": [
-        { "files": ["src/ui/views/**"], "max": 400 }
-      ]
+      "overrides": [{ "files": ["src/ui/views/**"], "max": 400 }]
     }
   }
 }
@@ -44,10 +43,10 @@ This fork is published as `@proda-ai/react-doctor` on GitHub Packages. Upstream 
 
 Versions follow `{upstream}-proda.{N}`:
 
-| Version | Meaning |
-|---|---|
-| `0.0.30-proda.1` | Based on upstream `0.0.30`, Proda patch 1 |
-| `0.0.30-proda.2` | Same upstream base, next Proda change |
+| Version          | Meaning                                            |
+| ---------------- | -------------------------------------------------- |
+| `0.0.30-proda.1` | Based on upstream `0.0.30`, Proda patch 1          |
+| `0.0.30-proda.2` | Same upstream base, next Proda change              |
 | `0.0.31-proda.1` | After merging upstream `0.0.31`, first Proda patch |
 
 The version is **set manually** in `packages/react-doctor/package.json` as part of the PR. Bump the `proda.N` suffix when making changes.
@@ -78,7 +77,7 @@ The version is **set manually** in `packages/react-doctor/package.json` as part 
 
 ---
 
-*Original README follows below.*
+_Original README follows below._
 
 ---
 
