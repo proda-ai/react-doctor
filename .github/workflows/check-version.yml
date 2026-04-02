@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "packages/react-doctor/package.json"
+  workflow_call:
 
 jobs:
   check-version:

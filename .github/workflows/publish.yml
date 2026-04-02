@@ -7,7 +7,11 @@ on:
       - "packages/react-doctor/**"
 
 jobs:
+  version-check:
+    uses: ./.github/workflows/check-version.yml
+
   publish:
+    needs: version-check
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -24,19 +28,6 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-
-      - name: Check version is not already published
-        working-directory: packages/react-doctor
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-          if npm view "@proda-ai/react-doctor@$VERSION" version --registry=https://npm.pkg.github.com 2>/dev/null; then
-            echo "❌ Version $VERSION is already published. Bump the version in package.json before merging."
-            exit 1
-          fi
-          echo "✅ Version $VERSION is not yet published"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
         working-directory: packages/react-doctor
