@@ -57,6 +57,8 @@ export const diagnose = async (
         projectInfo.framework,
         projectInfo.hasReactCompiler,
         lintIncludePaths,
+        undefined,
+        userConfig?.rules,
       ).catch((error: unknown) => {
         console.error("Lint failed:", error);
         return emptyDiagnostics;

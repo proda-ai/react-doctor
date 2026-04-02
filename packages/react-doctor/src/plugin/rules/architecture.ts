@@ -4,6 +4,7 @@ import {
   RENDER_FUNCTION_PATTERN,
 } from "../constants.js";
 import { isComponentAssignment, isComponentDeclaration, isUppercaseName } from "../helpers.js";
+import { getThreshold } from "../thresholds.js";
 import type { EsTreeNode, Rule, RuleContext } from "../types.js";
 
 export const noGenericHandlerNames: Rule = {
@@ -29,6 +30,9 @@ export const noGenericHandlerNames: Rule = {
 
 export const noGiantComponent: Rule = {
   create: (context: RuleContext) => {
+    const filename = context.getFilename?.() ?? "";
+    const threshold = getThreshold("no-giant-component", filename, GIANT_COMPONENT_LINE_THRESHOLD);
+
     const reportOversizedComponent = (
       nameNode: EsTreeNode,
       componentName: string,
@@ -36,7 +40,7 @@ export const noGiantComponent: Rule = {
     ): void => {
       if (!bodyNode.loc) return;
       const lineCount = bodyNode.loc.end.line - bodyNode.loc.start.line + 1;
-      if (lineCount > GIANT_COMPONENT_LINE_THRESHOLD) {
+      if (lineCount > threshold) {
         context.report({
           node: nameNode,
           message: `Component "${componentName}" is ${lineCount} lines — consider breaking it into smaller focused components`,

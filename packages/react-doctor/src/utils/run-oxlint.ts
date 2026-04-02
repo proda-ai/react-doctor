@@ -10,7 +10,13 @@ import {
   SPAWN_ARGS_MAX_LENGTH_CHARS,
 } from "../constants.js";
 import { createOxlintConfig } from "../oxlint-config.js";
-import type { CleanedDiagnostic, Diagnostic, Framework, OxlintOutput } from "../types.js";
+import type {
+  CleanedDiagnostic,
+  Diagnostic,
+  Framework,
+  OxlintOutput,
+  RulesConfig,
+} from "../types.js";
 import { neutralizeDisableDirectives } from "./neutralize-disable-directives.js";
 
 const esmRequire = createRequire(import.meta.url);
@@ -277,6 +283,27 @@ const resolvePluginPath = (): string => {
   return pluginPath;
 };
 
+const preparePluginWithRules = (
+  pluginPath: string,
+  rules: RulesConfig | undefined,
+): { effectivePluginPath: string; cleanup: () => void } => {
+  if (!rules || Object.keys(rules).length === 0) {
+    return { effectivePluginPath: pluginPath, cleanup: () => {} };
+  }
+
+  const originalPlugin = fs.readFileSync(pluginPath, "utf-8");
+  const preamble = `globalThis.__REACT_DOCTOR_RULES__=${JSON.stringify(rules)};\n`;
+  const tempPluginPath = path.join(os.tmpdir(), `react-doctor-plugin-${process.pid}.js`);
+  fs.writeFileSync(tempPluginPath, preamble + originalPlugin);
+
+  return {
+    effectivePluginPath: tempPluginPath,
+    cleanup: () => {
+      if (fs.existsSync(tempPluginPath)) fs.unlinkSync(tempPluginPath);
+    },
+  };
+};
+
 const resolveDiagnosticCategory = (plugin: string, rule: string): string => {
   const ruleKey = `${plugin}/${rule}`;
   return RULE_CATEGORY_MAP[ruleKey] ?? PLUGIN_CATEGORY_MAP[plugin] ?? "Other";
@@ -388,6 +415,7 @@ export const runOxlint = async (
   hasReactCompiler: boolean,
   includePaths?: string[],
   nodeBinaryPath: string = process.execPath,
+  rules?: RulesConfig,
 ): Promise<Diagnostic[]> => {
   if (includePaths !== undefined && includePaths.length === 0) {
     return [];
@@ -395,7 +423,12 @@ export const runOxlint = async (
 
   const configPath = path.join(os.tmpdir(), `react-doctor-oxlintrc-${process.pid}.json`);
   const pluginPath = resolvePluginPath();
-  const config = createOxlintConfig({ pluginPath, framework, hasReactCompiler });
+  const { effectivePluginPath, cleanup: cleanupPlugin } = preparePluginWithRules(pluginPath, rules);
+  const config = createOxlintConfig({
+    pluginPath: effectivePluginPath,
+    framework,
+    hasReactCompiler,
+  });
   const restoreDisableDirectives = neutralizeDisableDirectives(rootDirectory, includePaths);
 
   try {
@@ -420,6 +453,7 @@ export const runOxlint = async (
 
     return allDiagnostics;
   } finally {
+    cleanupPlugin();
     restoreDisableDirectives();
     if (fs.existsSync(configPath)) {
       fs.unlinkSync(configPath);

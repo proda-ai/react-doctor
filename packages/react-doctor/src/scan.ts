@@ -499,6 +499,7 @@ export const scan = async (
             projectInfo.hasReactCompiler,
             lintIncludePaths,
             resolvedNodeBinaryPath,
+            userConfig?.rules,
           );
           lintSpinner?.succeed("Running lint checks.");
           return lintDiagnostics;
